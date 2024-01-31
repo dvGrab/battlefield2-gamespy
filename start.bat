@@ -1,0 +1,1 @@
+tsc && node ./release/index.js

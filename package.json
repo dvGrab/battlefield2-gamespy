@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@types/crypto-js": "^4.2.2",
+    "@types/node": "^20.11.13",
+    "crypto-js": "^4.2.0",
+    "easy-crc": "^1.1.0",
+    "net": "^1.0.2"
+  }
+}
