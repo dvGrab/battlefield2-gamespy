@@ -21,12 +21,12 @@ function randomhex(size) {
 exports.randomhex = randomhex;
 function parse_param(data, paramater) {
     const regex = /\\(\w+)\\([^\\]+)/g;
-    const matches = [];
-    let returnValue = "";
     let match;
+    const matches = [];
     while ((match = regex.exec(data))) {
         matches.push({ parameter: match[1], value: match[2] });
     }
+    let returnValue = "";
     matches.forEach((element) => {
         if (element.parameter == paramater)
             returnValue = element.value;

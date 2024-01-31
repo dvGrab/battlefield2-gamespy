@@ -5,6 +5,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.gamespy_cm = void 0;
 const net_1 = require("net");
 const client_1 = require("./client");
+const config_1 = require("../config");
 class gamespy_cm {
     constructor() {
         this.clients = [];
@@ -13,10 +14,10 @@ class gamespy_cm {
         this.server.on("connection", (socket) => {
             this.clients.push(new client_1.client(socket));
         });
-        this.server.listen(29900, "127.0.0.1");
         this.server.on("listening", () => {
-            console.log("Gamespy login listenting on 29900");
+            console.log(`GPCM login listenting on ${config_1.config.gpcm_port}.`);
         });
+        this.server.listen(config_1.config.gpcm_port, config_1.config.gpcm_port);
     }
 }
 exports.gamespy_cm = gamespy_cm;

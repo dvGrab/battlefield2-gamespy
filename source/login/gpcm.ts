@@ -4,6 +4,7 @@
 import { Server, Socket, createServer } from "net";
 import { client } from "./client";
 import { random } from "../utils";
+import { config } from "../config";
 
 export class gamespy_cm {
 
@@ -19,13 +20,11 @@ export class gamespy_cm {
             this.clients.push(new client(socket));
         });
 
-        this.server.listen(29900, "127.0.0.1");
-
         this.server.on("listening", () => {
-            console.log("Gamespy login listenting on 29900.");
-        });    
-        
+            console.log(`GPCM login listenting on ${config.gpcm_port}.`);
+        });
 
+        this.server.listen(config.gpcm_port, config.gpcm_port);
     }
 
 }
