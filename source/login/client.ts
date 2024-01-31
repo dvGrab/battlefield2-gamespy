@@ -48,13 +48,14 @@ export class client {
 
     send_profile() {
         this.socket.write(`\\pi\\profileid\\${this.id}\\nick\\${this.uniquenick}\\userid\\${this.id}\\email\\${this.uniquenick}\\sig\\${randomhex(32)}\\uniquenick\\${this.uniquenick}\\pid\\${this.id}\\firstname\\firstname\\lastname\\lastname\\homepage\\\\zipcode\\00000\\countrycode\\US\\st\\  \\birthday\\0\\sex\\0\\icquin\\0\\aim\\\\pic\\0\\pmask\\64\\occ\\0\\ind\\0\\inc\\0\\mar\\0\\chc\\0\\i1\\0\\o1\\0\\mp\\4\\lon\\0.000000\\lat\\0.000000\\loc\\\\conn\\1\\id\\2\\final\\`);
-        logger.log(PREFIX.NORMAL, `User ${this.uniquenick} has been logged in successfully.`);
         this.profile = true;
     }
 
     send_login() {
         if (this.proof(this.challenge, this.key) != this.response)
             return this.send_error("Invalid password.");
+
+        logger.log(PREFIX.NORMAL, `User ${this.uniquenick} has been logged in successfully.`);
 
         this.socket.write(`\\lc\\2\\sesskey\\${this.sessionkey}\\proof\\${this.proof(this.key, this.challenge)}\\userid\\${this.id}\\profileid\\${this.id}\\uniquenick\\${this.uniquenick}\\lt\\${random(22)}__\\id\\1\\final\\`);
         this.logged_in = true;
