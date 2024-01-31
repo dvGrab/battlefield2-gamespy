@@ -3,7 +3,6 @@
 
 import { Server, Socket, createServer } from "net";
 import { client } from "./client";
-import { random } from "../utils";
 import { config } from "../config";
 import { PREFIX, logger } from "../logger";
 
