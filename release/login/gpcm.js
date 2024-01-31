@@ -6,6 +6,7 @@ exports.gamespy_cm = void 0;
 const net_1 = require("net");
 const client_1 = require("./client");
 const config_1 = require("../config");
+const logger_1 = require("../logger");
 class gamespy_cm {
     constructor() {
         this.clients = [];
@@ -15,7 +16,7 @@ class gamespy_cm {
             this.clients.push(new client_1.client(socket));
         });
         this.server.on("listening", () => {
-            console.log(`GPCM login listenting on ${config_1.config.gpcm_port}.`);
+            logger_1.logger.log(logger_1.PREFIX.WARNING, `GPCM login listenting on ${config_1.config.gpcm_port}.`);
         });
         this.server.listen(config_1.config.gpcm_port, config_1.config.gpcm_port);
     }

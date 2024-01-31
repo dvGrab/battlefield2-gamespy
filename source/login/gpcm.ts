@@ -5,6 +5,7 @@ import { Server, Socket, createServer } from "net";
 import { client } from "./client";
 import { random } from "../utils";
 import { config } from "../config";
+import { PREFIX, logger } from "../logger";
 
 export class gamespy_cm {
 
@@ -21,7 +22,7 @@ export class gamespy_cm {
         });
 
         this.server.on("listening", () => {
-            console.log(`GPCM login listenting on ${config.gpcm_port}.`);
+            logger.log(PREFIX.WARNING,`GPCM login listenting on ${config.gpcm_port}.` )
         });
 
         this.server.listen(config.gpcm_port, config.gpcm_port);

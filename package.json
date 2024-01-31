@@ -1,9 +1,11 @@
 {
   "dependencies": {
     "@types/crypto-js": "^4.2.2",
+    "@types/fs-extra": "^11.0.4",
     "@types/node": "^20.11.13",
     "crypto-js": "^4.2.0",
     "easy-crc": "^1.1.0",
+    "fs-extra": "^11.2.0",
     "net": "^1.0.2"
   }
 }

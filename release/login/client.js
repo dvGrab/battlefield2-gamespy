@@ -3,16 +3,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.client = void 0;
 const utils_1 = require("../utils");
 const crypto_js_1 = require("crypto-js");
+const logger_1 = require("../logger");
 class client {
     constructor(socket) {
+        this.logged_in = false;
+        this.profile = false;
         this.socket = socket;
         this.send_challenge();
         this.socket.on("data", (data) => {
-            this.parse_client(data.toString());
-            this.parse_profile(data.toString());
+            if (!this.logged_in)
+                this.parse_client(data.toString());
+            if (!this.profile)
+                this.parse_profile(data.toString());
         });
         this.socket.on("error", (error) => {
-            console.log(`User ${this.uniquenick ? this.uniquenick : "Unknown"} has been disconnected. (${error}).`);
+            logger_1.logger.log(logger_1.PREFIX.DEBUG, `User ${this.uniquenick ? this.uniquenick : "Unknown"} has been disconnected. (${error}).`);
         });
     }
     send_challenge() {
@@ -21,15 +26,18 @@ class client {
     }
     send_profile() {
         this.socket.write(`\\pi\\profileid\\${this.id}\\nick\\${this.uniquenick}\\userid\\${this.id}\\email\\${this.uniquenick}\\sig\\${(0, utils_1.randomhex)(32)}\\uniquenick\\${this.uniquenick}\\pid\\${this.id}\\firstname\\firstname\\lastname\\lastname\\homepage\\\\zipcode\\00000\\countrycode\\US\\st\\  \\birthday\\0\\sex\\0\\icquin\\0\\aim\\\\pic\\0\\pmask\\64\\occ\\0\\ind\\0\\inc\\0\\mar\\0\\chc\\0\\i1\\0\\o1\\0\\mp\\4\\lon\\0.000000\\lat\\0.000000\\loc\\\\conn\\1\\id\\2\\final\\`);
-        console.log(`User ${this.uniquenick} has been logged in successfully.`);
+        logger_1.logger.log(logger_1.PREFIX.NORMAL, `User ${this.uniquenick} has been logged in successfully.`);
+        this.profile = true;
     }
     send_login() {
         if (this.proof(this.challenge, this.key) != this.response)
             return this.send_error("Invalid password.");
         this.socket.write(`\\lc\\2\\sesskey\\${this.sessionkey}\\proof\\${this.proof(this.key, this.challenge)}\\userid\\${this.id}\\profileid\\${this.id}\\uniquenick\\${this.uniquenick}\\lt\\${(0, utils_1.random)(22)}__\\id\\1\\final\\`);
+        this.logged_in = true;
     }
     send_error(message) {
         this.socket.write(`\\error\\err\\0\\fatal\\errmsg\\${message}\\id\\1\\final\\`);
+        logger_1.logger.log(logger_1.PREFIX.ERROR, "User " + this.uniquenick + " received error. (" + message + ")");
     }
     parse_client(message) {
         let uniquenick = (0, utils_1.parse_param)(message, "uniquenick");
@@ -48,8 +56,6 @@ class client {
             this.sessionkey = (0, utils_1.crc16)(this.uniquenick).toString();
             this.send_login();
         }
-        else
-            this.send_error("Invalid login request.");
     }
     parse_profile(message) {
         let profileid = (0, utils_1.parse_param)(message, "profileid");
