@@ -29,11 +29,18 @@ export class client {
         this.send_challenge();
 
         this.socket.on("data", (data: Buffer) => {
+
             if (!this.logged_in)
                 this.parse_client(data.toString());
 
             if (!this.profile)
                 this.parse_profile(data.toString());
+
+            this.parse_logout(data.toString());
+        });
+
+        this.socket.on("close", () => {
+
         });
 
         this.socket.on("error", (error) => {
@@ -64,6 +71,18 @@ export class client {
     send_error(message: string) {
         this.socket.write(`\\error\\err\\0\\fatal\\errmsg\\${message}\\id\\1\\final\\`);
         logger.log(PREFIX.ERROR, "User " + this.uniquenick + " received error. (" + message + ")");
+    }
+
+    parse_logout(message: string) {
+
+        let logout = message.includes("logout");
+        let sesskey = parse_param(message, "sesskey");
+
+        if(sesskey && logout){
+            this.logged_in = false;
+            this.profile = false;
+        }
+
     }
 
     parse_client(message: string) {

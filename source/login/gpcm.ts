@@ -19,10 +19,18 @@ export class gamespy_cm {
 
         this.server.on("connection", (socket) => {
             this.clients.push(new client(socket));
+
+            socket.on("close", () => {
+                let found = this.clients.findIndex(element => element.socket == socket);
+
+                logger.log(PREFIX.NORMAL, `User ${this.clients[found].uniquenick} has been disconnected.`);
+
+                this.clients.splice(found, 1);
+            });
         });
 
         this.server.on("listening", () => {
-            logger.log(PREFIX.WARNING,`GPCM login listenting on ${config.gpcm_port}.` )
+            logger.log(PREFIX.WARNING, `GPCM login listenting on ${config.gpcm_port}.`)
         });
 
         this.server.listen(config.gpcm_port, config.gpcm_port);

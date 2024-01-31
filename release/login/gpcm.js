@@ -14,6 +14,13 @@ class gamespy_cm {
         this.server = (0, net_1.createServer)();
         this.server.on("connection", (socket) => {
             this.clients.push(new client_1.client(socket));
+            socket.on("close", () => {
+                console.log("CLOOOSED");
+                let found = this.clients.findIndex(element => element.socket == socket);
+                logger_1.logger.log(logger_1.PREFIX.NORMAL, `User ${this.clients[found].uniquenick} has been disconnected.`);
+                this.clients.splice(found, 1);
+                console.log(this.clients.length);
+            });
         });
         this.server.on("listening", () => {
             logger_1.logger.log(logger_1.PREFIX.WARNING, `GPCM login listenting on ${config_1.config.gpcm_port}.`);

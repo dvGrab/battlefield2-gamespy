@@ -15,6 +15,9 @@ class client {
                 this.parse_client(data.toString());
             if (!this.profile)
                 this.parse_profile(data.toString());
+            this.parse_logout(data.toString());
+        });
+        this.socket.on("close", () => {
         });
         this.socket.on("error", (error) => {
             logger_1.logger.log(logger_1.PREFIX.DEBUG, `User ${this.uniquenick ? this.uniquenick : "Unknown"} has been disconnected. (${error}).`);
@@ -38,6 +41,14 @@ class client {
     send_error(message) {
         this.socket.write(`\\error\\err\\0\\fatal\\errmsg\\${message}\\id\\1\\final\\`);
         logger_1.logger.log(logger_1.PREFIX.ERROR, "User " + this.uniquenick + " received error. (" + message + ")");
+    }
+    parse_logout(message) {
+        let logout = message.includes("logout");
+        let sesskey = (0, utils_1.parse_param)(message, "sesskey");
+        if (sesskey && logout) {
+            this.logged_in = false;
+            this.profile = false;
+        }
     }
     parse_client(message) {
         let uniquenick = (0, utils_1.parse_param)(message, "uniquenick");
