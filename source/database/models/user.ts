@@ -1,4 +1,4 @@
-import { InferAttributes, InferCreationAttributes, Model, CreationOptional, Sequelize, DataTypes } from "sequelize";
+import { InferAttributes, InferCreationAttributes, Model, Sequelize, DataTypes } from "sequelize";
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     declare id: number;

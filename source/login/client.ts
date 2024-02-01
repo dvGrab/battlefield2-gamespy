@@ -1,8 +1,7 @@
 import { Socket } from "net";
-import { crc16, parse_param, random, randomhex } from "../utils";
+import { crc16, parse_param, random, randomhex } from "../additions/utils";
 import { MD5 } from "crypto-js";
 import { PREFIX, logger } from "../logger";
-import { prependListener } from "process";
 
 export class client {
     socket: Socket;

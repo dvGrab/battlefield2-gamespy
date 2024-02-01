@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.client = void 0;
-const utils_1 = require("../utils");
+const utils_1 = require("../additions/utils");
 const crypto_js_1 = require("crypto-js");
 const logger_1 = require("../logger");
 class client {
