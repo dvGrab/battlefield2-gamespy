@@ -1,7 +1,6 @@
 "use strict";
-//GPSP - Gamespy Partner Service Program
-//GPCM - Gamespy Partner Content Management
 Object.defineProperty(exports, "__esModule", { value: true });
+const database_1 = require("./database");
 const gpcm_1 = require("./login/gpcm");
-//let gpsp = new gamespy_sp();
 let gpcm = new gpcm_1.gamespy_cm();
+let db = new database_1.database();
