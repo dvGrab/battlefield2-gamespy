@@ -16,7 +16,7 @@ class gamespy_cm {
             this.clients.push(new client_1.client(socket));
             socket.on("close", () => {
                 let found = this.clients.findIndex(element => element.socket == socket);
-                logger_1.logger.log(logger_1.PREFIX.NORMAL, `User ${this.clients[found].uniquenick} has been disconnected.`);
+                //logger.log(PREFIX.NORMAL, `User ${this.clients[found].uniquenick} has been disconnected.`);
                 this.clients.splice(found, 1);
             });
         });

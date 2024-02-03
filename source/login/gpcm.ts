@@ -22,7 +22,7 @@ export class gamespy_cm {
             socket.on("close", () => {
                 let found = this.clients.findIndex(element => element.socket == socket);
 
-                logger.log(PREFIX.NORMAL, `User ${this.clients[found].uniquenick} has been disconnected.`);
+                //logger.log(PREFIX.NORMAL, `User ${this.clients[found].uniquenick} has been disconnected.`);
 
                 this.clients.splice(found, 1);
             });

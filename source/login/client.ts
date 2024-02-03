@@ -2,20 +2,22 @@ import { Socket } from "net";
 import { crc16, parse_param, random, randomhex } from "../additions/utils";
 import { MD5 } from "crypto-js";
 import { PREFIX, logger } from "../logger";
+import { User } from "../database/models/user";
+import { database } from "../database";
 
 export class client {
+
+    user: User;
     socket: Socket;
 
     key: string;
     sessionkey: string;
 
-    id: string;
     port: string;
     response: string;
     gamename: string;
     productid: string;
     challenge: string;
-    uniquenick: string;
     namespaceid: string;
     sdkrevision: string;
 
@@ -24,6 +26,8 @@ export class client {
 
     constructor(socket: Socket) {
         this.socket = socket;
+
+        this.user = new User();
 
         this.send_challenge();
 
@@ -43,7 +47,7 @@ export class client {
         });
 
         this.socket.on("error", (error) => {
-            logger.log(PREFIX.DEBUG, `User ${this.uniquenick ? this.uniquenick : "Unknown"} has been disconnected. (${error}).`);
+            logger.log(PREFIX.DEBUG, `User ${this.user.name ? this.user.name : "Unknown"} has been disconnected. (${error}).`);
         });
     }
 
@@ -53,23 +57,23 @@ export class client {
     }
 
     send_profile() {
-        this.socket.write(`\\pi\\profileid\\${this.id}\\nick\\${this.uniquenick}\\userid\\${this.id}\\email\\${this.uniquenick}\\sig\\${randomhex(32)}\\uniquenick\\${this.uniquenick}\\pid\\${this.id}\\firstname\\firstname\\lastname\\lastname\\homepage\\\\zipcode\\00000\\countrycode\\US\\st\\  \\birthday\\0\\sex\\0\\icquin\\0\\aim\\\\pic\\0\\pmask\\64\\occ\\0\\ind\\0\\inc\\0\\mar\\0\\chc\\0\\i1\\0\\o1\\0\\mp\\4\\lon\\0.000000\\lat\\0.000000\\loc\\\\conn\\1\\id\\2\\final\\`);
+        this.socket.write(`\\pi\\profileid\\${this.user.id}\\nick\\${this.user.name}\\userid\\${this.user.id}\\email\\${this.user.name}\\sig\\${randomhex(32)}\\uniquenick\\${this.user.name}\\pid\\${this.user.name}\\firstname\\firstname\\lastname\\lastname\\homepage\\\\zipcode\\00000\\countrycode\\US\\st\\  \\birthday\\0\\sex\\0\\icquin\\0\\aim\\\\pic\\0\\pmask\\64\\occ\\0\\ind\\0\\inc\\0\\mar\\0\\chc\\0\\i1\\0\\o1\\0\\mp\\4\\lon\\0.000000\\lat\\0.000000\\loc\\\\conn\\1\\id\\2\\final\\`);
         this.profile = true;
     }
 
     send_login() {
         if (this.proof(this.challenge, this.key) != this.response)
-            return this.send_error("Invalid password.");
+            return this.send_error("Invalid passwordwwww.");
 
-        logger.log(PREFIX.NORMAL, `User ${this.uniquenick} has been logged in successfully.`);
+        logger.log(PREFIX.NORMAL, `User ${this.user.name} has been logged in successfully.`);
 
-        this.socket.write(`\\lc\\2\\sesskey\\${this.sessionkey}\\proof\\${this.proof(this.key, this.challenge)}\\userid\\${this.id}\\profileid\\${this.id}\\uniquenick\\${this.uniquenick}\\lt\\${random(22)}__\\id\\1\\final\\`);
+        this.socket.write(`\\lc\\2\\sesskey\\${this.sessionkey}\\proof\\${this.proof(this.key, this.challenge)}\\userid\\${this.user.id}\\profileid\\${this.user.id}\\uniquenick\\${this.user.name}\\lt\\${random(22)}__\\id\\1\\final\\`);
         this.logged_in = true;
     }
 
     send_error(message: string) {
         this.socket.write(`\\error\\err\\0\\fatal\\errmsg\\${message}\\id\\1\\final\\`);
-        logger.log(PREFIX.ERROR, "User " + this.uniquenick + " received error. (" + message + ")");
+        logger.log(PREFIX.ERROR, "User " + this.user.name + " received error. (" + message + ")");
     }
 
     parse_logout(message: string) {
@@ -77,7 +81,7 @@ export class client {
         let logout = message.includes("logout");
         let sesskey = parse_param(message, "sesskey");
 
-        if(sesskey && logout){
+        if (sesskey && logout) {
             this.logged_in = false;
             this.profile = false;
         }
@@ -92,19 +96,27 @@ export class client {
 
         if (uniquenick || challenge || response) {
             this.response = response;
-            this.uniquenick = uniquenick;
             this.challenge = challenge;
-
-            this.id = crc16("1").toString(); //add database id (needed later)
+            this.user.name = uniquenick; //set temporary username because of error logging would cause (undefined).
             this.port = parse_param(message, "port");
             this.gamename = parse_param(message, "gamename");
             this.namespaceid = parse_param(message, "namespaceid");
             this.sdkrevision = parse_param(message, "sdkrevision");
             this.productid = parse_param(message, "product_id");
 
-            this.sessionkey = crc16(this.uniquenick).toString();
+            this.sessionkey = crc16(uniquenick).toString();
 
-            this.send_login();
+            User.findOne({ where: { name: uniquenick } }).then((element) => {
+                if (element) {
+                    this.user = element;
+                    this.send_login();
+                }
+                else {
+                    this.send_error("User is not available.");
+                    this.logged_in = false;
+                    this.profile = false;
+                }
+            });
         }
 
     }
@@ -120,12 +132,12 @@ export class client {
 
     proof(challenge_server: string, challenge_client: string) {
 
-        let password = MD5("123").toString().toLowerCase(); //check for database password md5
+        let password = this.user.password;
 
         let returnValue = "";
         returnValue += password;
         returnValue += "                                                ";
-        returnValue += this.uniquenick;
+        returnValue += this.user.name;
         returnValue += challenge_server;
         returnValue += challenge_client;
         returnValue += password;
